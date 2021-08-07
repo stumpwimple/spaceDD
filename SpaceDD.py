@@ -685,7 +685,7 @@ class Lifeform:
         if lifeform_type == 0:
             self.trait['lifeform_type'] = Trait("Lifeform Type", "get_lifeform_type()")
         else:
-            self.trait['lifeform_type'] = Trait("Lifeform Type", "'" + lifeform_type + "'")
+            self.trait['lifeform_type'] = Trait("Lifeform Type", f"'{lifeform_type}'")
 
         self.trait['species'] = Trait("Species", "sr(random.choice(list_of['AdvancedLifeforms']))", summary_trait=True)
         self.trait['colors'] = Trait("Lifeform Colors",
@@ -701,8 +701,8 @@ class Lifeform:
         self.trait['demeanor'] = Trait("Lifeform Demeanor", "sr(random.choice(list_of['AdvLifeformDemeanor']))")
         self.trait['combat_profile'] = Trait("Combat Profile",
                                              "sr(random.choice(list_of['BaseLifeformCombatProfile']))")
-        self.trait['reaction'] = Trait("Reaction to...",
-                                       "sr(random.choice(list_of['AdvLifeformReaction']))")  # Build system where this is randomly generated upon player action
+        # Build system where this is randomly generated upon player action
+        self.trait['reaction'] = Trait("Reaction to...", "sr(random.choice(list_of['AdvLifeformReaction']))")
 
         num_uniques = 0
 
@@ -1151,18 +1151,18 @@ def create_oval_by_center(canvas, x, y, radius, color="white", solid=True):
         canvas.create_oval(x - radius, y - radius, x + radius, y + radius, outline=color)
 
 
-def create_object_with_orbit(canvas, planet, canvasX, canvasY, canvas_scaleX, canvas_scaleY):
+def create_object_with_orbit(canvas, planet, canvas_x, canvas_y, canvas_scale_x, canvas_scale_y):
     """creates circle for planet, with its orbit"""
     orbit = int(planet.trait['orbit_radius'].value)
     size = planet.trait['size'].value + 2
-    x1, y1 = canvasX / 2 - orbit * canvas_scaleX, canvasY / 2 - orbit * canvas_scaleY
-    x2, y2 = canvasX / 2 + orbit * canvas_scaleX, canvasY / 2 + orbit * canvas_scaleY
+    x1, y1 = canvas_x / 2 - orbit * canvas_scale_x, canvas_y / 2 - orbit * canvas_scale_y
+    x2, y2 = canvas_x / 2 + orbit * canvas_scale_x, canvas_y / 2 + orbit * canvas_scale_y
     canvas.create_oval(x1, y1, x2, y2, outline="white")
 
     object_x = math.cos(planet.trait['orbit_radians'].value) * orbit
     object_y = math.sin(planet.trait['orbit_radians'].value) * orbit
-    x1, y1 = canvasX / 2 - object_x * canvas_scaleX - size / 2, canvasY / 2 - object_y * canvas_scaleY - size / 2
-    x2, y2 = canvasX / 2 - object_x * canvas_scaleX + size / 2, canvasY / 2 - object_y * canvas_scaleY + size / 2
+    x1, y1 = canvas_x / 2 - object_x * canvas_scale_x - size / 2, canvas_y / 2 - object_y * canvas_scale_y - size / 2
+    x2, y2 = canvas_x / 2 - object_x * canvas_scale_x + size / 2, canvas_y / 2 - object_y * canvas_scale_y + size / 2
     canvas.create_oval(x1, y1, x2, y2, fill=planet.trait['color'].value)
     canvas.create_text(x2, y2, anchor="nw", fill="white", text=planet.trait['identity'].value)
 

@@ -1,16 +1,5 @@
-#########################################################################################
-#########################################################################################
-#########################################################################################
-#########################################################################################
-###########################                                           ###################
-###########################    SPACE D&D RANDOM UNIVERSE GENERATOR    ###################
-###########################    WORKING TITLE: TAXONOMY                ###################
-#########################################################################################
-#########################################################################################
-#########################################################################################
-#########################################################################################
-#########################################################################################
-
+# SPACE D&D RANDOM UNIVERSE GENERATOR
+# WORKING TITLE: TAXONOMY
 
 import copy
 import math
@@ -27,9 +16,8 @@ alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'
 basic_region_type = ('Mountain', 'Island', 'Forest', 'Plains', 'Swamp', 'Ocean', 'Desert')
 basic_planet_type = ('Hot Planet', 'Habitable Planet', 'Gas Planet', 'Icy Gas Planet')
 basic_weather = ('Sunny', 'Clear sky', 'Overcast', 'Wind', 'Precipitation')
-lifeform_type_list = (
-'Plant-like Lifeform', 'Advanced Lifeform', 'Hybrid Lifeform', 'Chimeric Lifeform', 'Monster Manual Lifeform',
-'Mythological Lifeform')
+lifeform_type_list = ('Plant-like Lifeform', 'Advanced Lifeform', 'Hybrid Lifeform',
+                      'Chimeric Lifeform', 'Monster Manual Lifeform', 'Mythological Lifeform')
 planet_water_type = ('frozen caps', 'One Sea', 'Two Seas', 'ocean 25%', 'ocean 50%', 'ocean 75%', 'ocean 100%')
 dice_type = (4, 6, 8, 10, 12, 20)
 
@@ -49,7 +37,7 @@ difficulty = 12  # Max DC anything will roll
 
 
 #########################################################################################
-######  FUNCTIONS  ######################################################################
+# FUNCTIONS  ############################################################################
 #########################################################################################
 
 # creates random alphanumeric string of length num
@@ -60,8 +48,8 @@ def rand_string(num):
     return return_string
 
 
-def rando(itemList):
-    print(sr(random.choice(list_of[itemList])))
+def rando(item_list):
+    print(sr(random.choice(list_of[item_list])))
 
 
 # returns num "tabs" each tab equals 3 spaces
@@ -69,7 +57,8 @@ def tab(num):
     return "   " * num
 
 
-# imports excel workbook, creates random generation lists, and list of random list categories. Also collects a list of categories this list could belong to and stores it in a list.
+# imports excel workbook, creates random generation lists, and list of random list categories.
+# Also collects a list of categories this list could belong to and stores it in a list.
 def import_random_lists_from_file():
     wb = load_workbook(filename='Random Lists.xlsx')
     ws = wb["LISTS"]
@@ -95,7 +84,7 @@ def import_random_lists_from_file():
 
 # Sub-Resolves any nested Random Lists
 def sr(this_str):
-    while ("[" in this_str):
+    while "[" in this_str:
         nested_list = this_str[this_str.find("[") + 1:this_str.find("]")]
         this_result = random.choice(list_of[nested_list])
         try:
@@ -108,7 +97,7 @@ def sr(this_str):
 
 # Returns True/False based on num % chance
 def chance(num):
-    return (True if (random.randint(0, 99) < num) else False)
+    return True if (random.randint(0, 99) < num) else False
 
 
 # Returns Lengthened string by appending spaces at the end of it. Used to fix formatting issues in tKinter
@@ -130,10 +119,10 @@ def isThisInt(s):
 
 
 #########################################################################################
-######  CLASSES  ########################################################################
+# CLASSES  ##############################################################################
 #########################################################################################
 
-class DefaultClassTemplate():
+class DefaultClassTemplate:
 
     def __init__(self):
         pass
@@ -146,14 +135,16 @@ class DefaultClassTemplate():
 
 
 #########################################################################################
-##  class Trait  ########################################################################
+# class Trait  ##########################################################################
 ######################################################################################### 
 
 # Trait Class - A class that displays a trait ui, with a number of other ui elements meant for running a pprpg
-class Trait():
+class Trait:
 
     def __init__(self, trait_name, trait_formula, trait_proficiency_formula="random.randint(1,difficulty)",
                  summary_trait=False, trait_unit=""):
+        self.ui_value = StringVar()
+        self.ui_proficiency_value = StringVar()
         self.identity = trait_name
         self.formula = trait_formula
         self.unit = trait_unit
@@ -165,8 +156,8 @@ class Trait():
 
     def __str__(self):
         trait_str = str_len(25, str(self.identity) + ":")
-        trait_str += str_len(60, str(self.value) + " " + str(self.unit))[
-                     :60]  # print only the left 60 charactes of value
+        # print only the left 60 characters of value
+        trait_str += str_len(60, str(self.value) + " " + str(self.unit))[:60]
         trait_str += str(self.proficiency)
         return trait_str
 
@@ -182,7 +173,7 @@ class Trait():
 
     def generate_trait_ui(self, trait_frame, ui_row):
         def update_discovered():
-            if discovered.get() == True:
+            if discovered.get():
                 self.is_discovered = True
             else:
                 self.is_discovered = False
@@ -197,15 +188,14 @@ class Trait():
             self.value = trait_value.get()
 
         discovered = BooleanVar()
-        if self.is_discovered == True: discovered.set(True)
+        if self.is_discovered:
+            discovered.set(True)
         ui_discovered = Checkbutton(trait_frame, variable=discovered, command=update_discovered)
         ui_discovered.grid(row=ui_row, column=0, padx=1, sticky=W)
 
-        self.ui_proficiency_value = StringVar()
         self.ui_proficiency_value.set(self.proficiency)
         self.ui_proficiency_value.trace("w", lambda name, index, mode,
-                                                    prof_value=self.ui_proficiency_value: update_proficiency(
-            prof_value))
+                                        prof_value=self.ui_proficiency_value: update_proficiency(prof_value))
         ui_proficiency = Entry(trait_frame, width=3, textvariable=self.ui_proficiency_value)
         ui_proficiency.grid(row=ui_row, column=1, padx=1, sticky=W)
 
@@ -216,7 +206,6 @@ class Trait():
         ui_trait_identity = Label(trait_frame, text=str(self.identity))
         ui_trait_identity.grid(row=ui_row, column=3, padx=1, sticky=W)
 
-        self.ui_value = StringVar()
         self.ui_value.set(str(self.value) + " " + self.unit)
         self.ui_value.trace("w", lambda name, index, mode, trait_value=self.ui_value: update_value(trait_value))
         ui_trait_value = Entry(trait_frame, width=40, textvariable=self.ui_value)
@@ -240,11 +229,11 @@ class Trait():
 
 
 ##########################################
-##  class Sol  ###########################
+# class Sol  #############################
 ##########################################
 
 # Solar System Class
-class Sol():
+class Sol:
 
     def __init__(self, sol_type=0, parent="self"):
         self.parent = parent
@@ -252,7 +241,7 @@ class Sol():
         self.trait = OrderedDict()
         self.subobject = []
 
-        if (sol_type == 0):
+        if sol_type == 0:
             self.trait['identity'] = Trait('Identity', "'SOL-' + rand_string(3)")
             self.trait['sol_type'] = Trait('Solar System type', "'Solar - One Star'", summary_trait=True)
             self.trait['star_temp'] = Trait('Star Temperature', "random.randint(20,100)*100", trait_unit="K")
@@ -271,15 +260,14 @@ class Sol():
                                                 str(self.trait['edge_helio'].value) + " // random.randint(7,9)",
                                                 trait_unit="Mkm")
             self.trait['effect_chance'] = Trait("Effect Chance", "random.randint(1,50)")
-            if chance(self.trait['effect_chance'].value): self.trait['system_effect'] = Trait('System Effect',
-                                                                                              "sr(random.choice(list_of['SpaceStoryHook']))",
-                                                                                              summary_trait=False)
+            if chance(self.trait['effect_chance'].value):
+                self.trait['system_effect'] = Trait('System Effect',
+                                                    "sr(random.choice(list_of['SpaceStoryHook']))", summary_trait=False)
 
             self.trait['num_planets'] = Trait("Number of planets", "random.randint(min_planets,max_planets)",
                                               summary_trait=True, trait_unit="Planets")
             for i in range(1, self.trait['num_planets'].value + 1):
-                orbit = int(
-                    random.random() * self.trait['edge_gas_zone'].value + 15 * self.trait['star_diameter'].value)
+                orbit = int(random.random() * self.trait['edge_gas_zone'].value + 15 * self.trait['star_diameter'].value)
                 planet_type = self.get_planet_type_by_orbit(orbit)
                 this_planet = Planet(planet_type, orbit, i, parent=self)
                 self.subobject.append(this_planet)
@@ -313,11 +301,11 @@ class Sol():
 
 
 ##########################################
-##  class Planet  ########################
+# class Planet  ##########################
 ##########################################
 
 # Planet Class
-class Planet():
+class Planet:
 
     def __init__(self, planet_type=0, orbit=0, planet_id=0, parent="self"):
         self.parent = parent
@@ -339,8 +327,8 @@ class Planet():
         self.trait['chance_of_life'] = Trait("Chance of Life", "'0'")
         self.trait['chance_of_sentient_life'] = Trait("Chance of Sentient Life", "'0'")
         self.trait['effect_chance'] = Trait("Effect Chance", "random.randint(1,50)", summary_trait=True)
-        if chance(self.trait['effect_chance'].value): self.trait['effect'] = Trait("Planet Effect",
-                                                                                   "sr(random.choice(list_of['PlanetEffect']))")
+        if chance(self.trait['effect_chance'].value):
+            self.trait['effect'] = Trait("Planet Effect", "sr(random.choice(list_of['PlanetEffect']))")
 
         self.trait['planet_id'] = Trait('Planet Id', "'" + str(planet_id) + "'")
 
@@ -352,7 +340,7 @@ class Planet():
         self.subobject = []
 
         # If planet is unassigned on creation, randomly generates from basic_planet_type
-        if (self.trait['planet_type'].value == 0):
+        if self.trait['planet_type'].value == 0:
             self.trait['planet_type'] = Trait("Planet Type", "random.choice(basic_planet_type)")
 
         # Give Planet type based traits
@@ -497,12 +485,12 @@ def roll_size():
 
 
 ##########################################
-##  class Region  ########################
+# class Region  ##########################
 ##########################################
 
 
 # Region Class - A planet has 4-20 regions, each with unique topography, weather, and wildlife.
-class Region():
+class Region:
 
     def __init__(self, parent_planet=0, region_type=0, region_id=0, parent="self"):
         self.parent = parent
@@ -580,11 +568,11 @@ class Region():
 
 
 ##########################################
-##  class Resource  ######################
+# class Resource  ########################
 ##########################################
 
 # Resource Class - Generates resource, mineral or gas, possibly future implementation with liquids
-class Resource():
+class Resource:
 
     def __init__(self, resource_type='', parent="self"):
         self.parent = parent
@@ -605,16 +593,18 @@ class Resource():
             self.trait['description'] = Trait("Resource Description",
                                               "sr(random.choice(list_of['ColorCommon'])) + ' ' + sr(random.choice(list_of['MineralDescription']))",
                                               summary_trait=True)
-            if chance(50): self.trait['uses'] = Trait("Potential uses", "sr(random.choice(list_of['MineralUses']))",
-                                                      summary_trait=True)
+            if chance(50):
+                self.trait['uses'] = Trait("Potential uses", "sr(random.choice(list_of['MineralUses']))",
+                                           summary_trait=True)
 
         elif self.trait['resource_type'].value == 'Gas':
             self.trait['identity'] = Trait("Catalog #", "'gas-' + rand_string(3)")
             self.trait['description'] = Trait("Resource Description",
                                               "get_gas_color() + ' ' + sr(random.choice(list_of['GasDescription']))",
                                               summary_trait=True)
-            if chance(50): self.trait['uses'] = Trait("Potential uses", "sr(random.choice(list_of['GasUses']))",
-                                                      summary_trait=True)
+            if chance(50):
+                self.trait['uses'] = Trait("Potential uses", "sr(random.choice(list_of['GasUses']))",
+                                           summary_trait=True)
 
     def __str__(self):
         resource_str = ""
@@ -635,12 +625,12 @@ def get_gas_color():
 
 
 ##########################################
-##  class Item           #################
+# class Item           ###################
 ##########################################
 
 
 # Future Item Class - Items, Loot, Armor, Weapons!
-class Item():
+class Item:
 
     def __init__(self):
         pass
@@ -653,7 +643,7 @@ class Item():
 
 
 ##########################################
-##  class Lifeform  ######################
+# class Lifeform  ########################
 ##########################################
 
 # Function to Generate Lifeform Type
@@ -680,7 +670,7 @@ def get_lifeform_type():
 
 
 # Lifeform Class - Generates lifeform using various types as templates
-class Lifeform():
+class Lifeform:
 
     def __init__(self, lifeform_type=0, parent="self"):
 
@@ -774,11 +764,10 @@ class Lifeform():
         lifeform_str += "\n"
         return lifeform_str
 
-    ##########################################
-
-
-##  class Sentient  ######################
 ##########################################
+# class Sentient  ########################
+##########################################
+
 
 # Return random type of sentient creature
 def get_sentient_type():
@@ -798,7 +787,7 @@ def get_sentient_type():
 
 
 # Sentient Life Class - Generates Sentient Lifeform species
-class SentientLife():
+class SentientLife:
 
     def __init__(self, sentient_type=0, parent="self"):
 
@@ -823,8 +812,9 @@ class SentientLife():
             self.trait['race'] = Trait("Race", "sr(random.choice(list_of['MythologicalLifeforms']))",
                                        trait_unit="(Sentient)")
         elif sentient_type == "Sentient Lifeform":
+            # TRY TO ROLL RANDOM LIFEFORM AS RACE
             self.trait['race'] = Trait("Race", "sr(random.choice(list_of['AdvancedLifeforms']))",
-                                       trait_unit="(Sentient)")  #######TRY TO ROLL RANDOM LIFEFORM AS RACE
+                                       trait_unit="(Sentient)")
 
         self.trait['sentient_type'].value = sentient_type
         self.trait['identity'] = Trait("Identity", "'" + self.trait['race'].value + "'")
@@ -833,8 +823,9 @@ class SentientLife():
         self.trait['secondary_ability_score'] = Trait("Secondary ability score",
                                                       "sr(random.choice(list_of['DDAbilityScore']))")
         for d in range(1, random.randint(1, 4)):
+            # EXPAND TO INCLUDE PHILOSOPHIES
             self.trait['diety' + str(d)] = Trait("Diety " + str(d),
-                                                 "sr(random.choice(list_of['Dieties']))")  ##EXPAND TO INCLUDE PHILOSOPHIES
+                                                 "sr(random.choice(list_of['Dieties']))")
 
         self.subobject = []
 
@@ -860,14 +851,13 @@ class SentientLife():
         sentient_str += "\n"
         return sentient_str
 
-    ##########################################
-
-
-##  class Civilization  ##################
+##########################################
+# class Civilization  ####################
 ##########################################
 
+
 # Civilization Class - Generates Civilizations for Sentient Life, and the status of that society
-class Civilization():
+class Civilization:
 
     def __init__(self, parent="self"):
         self.parent = parent
@@ -884,8 +874,9 @@ class Civilization():
         self.trait['type_of_society'] = Trait("Type of Society", "sr(random.choice(list_of['TypeOfSociety']))")
         self.trait['religion'] = Trait("Religion?", "sr(random.choice(list_of['YYN']))")
 
-        # for p in range(1,random.randint(2,5)):
-        #     self.trait['respected_profession'+str(p)] = Trait("Respected Profession "+str(p),"sr(random.choice(list_of['Jobs']))")
+        # for p in range(1, random.randint(2, 5)):
+        #     self.trait['respected_profession' + str(p)] = Trait("Respected Profession " + str(p),
+        #                                                         "sr(random.choice(list_of['Jobs']))")
         self.trait['respected_professions'] = Trait("Respected Profession",
                                                     "get_x_from_list(random.randint(2,5),'Jobs')")
         self.trait['popular_sport'] = Trait("Popular Sport like ", "get_x_from_list(2,'Sports')")
@@ -911,11 +902,11 @@ def get_x_from_list(x, list_name):
 
 
 ##########################################
-##  class City  ##########################
+# class City  ############################
 ##########################################
 
 # City Class - Generates a City with a number of traits
-class City():
+class City:
 
     def __init__(self, parent="self"):
         self.parent = parent
@@ -938,7 +929,7 @@ class City():
                                                    "sr(random.choice(list_of['Transportation']))")
         self.trait['transit1'].value = "Path"
 
-        ###########These should be Subobjects####################
+        # These should be Subobjects ####################
         for t in range(1, random.randint(1, 3)):
             self.trait['sentient_' + str(t)] = Trait("Sentient Encounter " + str(t),
                                                      "sr(random.choice(list_of['Buildings']))")
@@ -949,7 +940,8 @@ class City():
                                                      "sr(random.choice(list_of['Buildings']))")
             self.trait['sentient_' + str(t) + '_hook'] = Trait("Adventure Hook " + str(t),
                                                                "sr(random.choice(list_of['CivilizationStoryHook']))")
-        if chance(10): self.trait['wonder'] = Trait("Wonder " + str(t), "sr(random.choice(list_of['ManmadeWonders']))")
+        if chance(10):
+            self.trait['wonder'] = Trait("Wonder " + str(t), "sr(random.choice(list_of['ManmadeWonders']))")
 
     def __str__(self):
         pass
@@ -959,10 +951,10 @@ class City():
 
 
 ##########################################
-##  class Spaceship  #####################
+# class Spaceship  #######################
 ##########################################
 
-class Spaceship():
+class Spaceship:
 
     def __init__(self):
         pass
@@ -975,10 +967,10 @@ class Spaceship():
 
 
 ##########################################
-##  class SpaceStation  ##################
+# class SpaceStation  ####################
 ##########################################
 
-class SpaceStation():
+class SpaceStation:
 
     def __init__(self):
         pass
@@ -989,16 +981,16 @@ class SpaceStation():
     def generate(self, opt1=0, opt2=0):
         pass
 
-    ### things to add ###
+    # things to add ###
     # Add Moons
     # Add DC system, Consider using the Primary DC (Planet DC, Lifeform DC, Sentient DC) as the "Challenge Rating"
     #   using that DC as the DC cap for all abilities
     # Add QUESTS!
 
 
-#################################################################################################################################################
-#####  TKINTER UI  ##############################################################################################################################
-################################################################################################################################################
+################################################################################
+# TKINTER UI  ##################################################################
+################################################################################
 
 # Tkinter UI Functions
 
@@ -1053,58 +1045,56 @@ def load_ui(new_object):
     root.geometry(str(screenX) + "x" + str(screenY))
     root.title("Space DD sub")
 
-    leftFrame = Frame(root, bg="yellow", width=0.32 * screenX, height=screenY)
-    rightFrame = Frame(root, bg="black", width=0.68 * screenX, height=screenY)
+    left_frame = Frame(root, bg="yellow", width=0.32 * screenX, height=screenY)
+    right_frame = Frame(root, bg="black", width=0.68 * screenX, height=screenY)
 
-    leftFrame.grid(row=0, column=0, sticky="NESW")
-    rightFrame.grid(row=0, column=1, sticky="NESW")
+    left_frame.grid(row=0, column=0, sticky="NESW")
+    right_frame.grid(row=0, column=1, sticky="NESW")
 
-    # subobjectsFramePrime = Frame(leftFrame,width=0.32*screenX)
+    # subobjectsFramePrime = Frame(left_frame,width=0.32*screenX)
     # subobjectsFramePrime.grid(row=1,column=0,padx=2,pady=2,sticky="NESW")
-    subobjectsCanvas = Canvas(leftFrame)  # ,bg = "pink",width=0.32*screenX
-    subobjectsCanvas.pack(side="left", fill="both")
+    subobjects_canvas = Canvas(left_frame)  # ,bg = "pink",width=0.32*screenX
+    subobjects_canvas.pack(side="left", fill="both")
 
-    subobjectsFrame = Frame(subobjectsCanvas)
-    subobjectsFrame.pack(fill="both")
+    subobjects_frame = Frame(subobjects_canvas)
+    subobjects_frame.pack(fill="both")
 
-    traitsFrame = Frame(subobjectsFrame, bg="orange", width=0.32 * screenX)
-    traitsFrame.grid(row=0, column=0, padx=0, pady=0, sticky="NEW")
+    traits_frame = Frame(subobjects_frame, bg="orange", width=0.32 * screenX)
+    traits_frame.grid(row=0, column=0, padx=0, pady=0, sticky="NEW")
 
-    subobjectsCanvas.create_window((0, 0), window=subobjectsFrame, anchor='nw')
-    subobjectsFrame.bind("<Configure>", lambda event, canvas=subobjectsCanvas: scroll_window(event, canvas))
+    subobjects_canvas.create_window((0, 0), window=subobjects_frame, anchor='nw')
+    subobjects_frame.bind("<Configure>", lambda event, canvas=subobjects_canvas: scroll_window(event, canvas))
 
-    scrollbar = Scrollbar(leftFrame, orient="vertical", command=subobjectsCanvas.yview)
+    scrollbar = Scrollbar(left_frame, orient="vertical", command=subobjects_canvas.yview)
     scrollbar.pack(side="right", fill="y")
 
-    subobjectsCanvas.configure(yscrollcommand=scrollbar.set)
+    subobjects_canvas.configure(yscrollcommand=scrollbar.set)
 
-    objectLabel = Label(traitsFrame, text=str(curr_object.trait['identity'].value))
-    objectLabel.grid(row=0, columnspan=5, sticky="W")
+    object_label = Label(traits_frame, text=str(curr_object.trait['identity'].value))
+    object_label.grid(row=0, columnspan=5, sticky="W")
 
     trait_counter = 1
 
-    if (curr_object.parent != "self"):
-        ui_collapse_button = Button(traitsFrame, text="Collapse",
-                                    command=lambda new_object=curr_object.parent, root=root: change_curr_object(
-                                        new_object, root))
+    if curr_object.parent != "self":
+        ui_collapse_button = Button(traits_frame, text="Collapse",
+                                    command=lambda new_object=curr_object.parent, root=root: change_curr_object(new_object, root))
         ui_collapse_button.grid(row=trait_counter, column=0, padx=1, columnspan=3, sticky=W)
         trait_counter += 1
-    ui_reroll_object_button = Button(traitsFrame, text="Reroll", command=lambda curr_object=curr_object, root=root,
-                                                                                parent=curr_object.parent: reroll_object(
-        curr_object, parent, root))
+    ui_reroll_object_button = Button(traits_frame, text="Reroll",
+                                     command=lambda curr_object=curr_object, root=root, parent=curr_object.parent: reroll_object(curr_object, parent, root))
     ui_reroll_object_button.grid(row=trait_counter, column=5, padx=1, columnspan=2, sticky=E)
     trait_counter += 1
 
-    #### GENERATE UI FOR TRAITS #######
+    # GENERATE UI FOR TRAITS #######
     for tr in curr_object.trait:
-        curr_object.trait[tr].generate_trait_ui(traitsFrame, trait_counter)
+        curr_object.trait[tr].generate_trait_ui(traits_frame, trait_counter)
         trait_counter += 1
 
-    #### GENERATE UI FOR SUB-OBJECTS #####
+    # GENERATE UI FOR SUB-OBJECTS #####
     try:
         subobject_counter = 1
         for so in curr_object.subobject:
-            subobjectframe = LabelFrame(subobjectsFrame, text=str(so.trait['identity'].value))
+            subobjectframe = LabelFrame(subobjects_frame, text=str(so.trait['identity'].value))
             subobjectframe.grid(row=subobject_counter, column=0, columnspan=8, sticky="NESW")  # , columnspan = 8
             subobject_counter += 1
 
@@ -1114,7 +1104,7 @@ def load_ui(new_object):
             tr_button.grid(row=so_row_counter, column=0, columnspan=3, sticky="W")
             so_row_counter += 1
             for tr in so.trait:
-                if (so.trait[tr].summary_trait == True):
+                if so.trait[tr].summary_trait:
                     so.trait[tr].generate_trait_ui(subobjectframe, so_row_counter)
                     so_row_counter += 1
     except AttributeError:
@@ -1122,32 +1112,30 @@ def load_ui(new_object):
 
     canvas_width = 0.68 * screenX
     canvas_height = 0.7 * screenY - 2
-    canvas_scaleX = 1
-    canvas_scaleY = 1
-    viewCanvas = Canvas(rightFrame, bg="black", width=canvas_width, height=canvas_height)
+    canvas_scale_x = 1
+    canvas_scale_y = 1
+    viewCanvas = Canvas(right_frame, bg="black", width=canvas_width, height=canvas_height)
     viewCanvas.grid(row=0, column=0, padx=0, pady=0, sticky="NESW")
 
     if curr_object.object_type == "Sol":
         # print ("Creating Sol UI")
-        canvas_scaleX = canvas_width / (curr_object.trait['edge_helio'].value * 1.1)
-        canvas_scaleY = canvas_height / (curr_object.trait['edge_helio'].value * 1.1)
+        canvas_scale_x = canvas_width / (curr_object.trait['edge_helio'].value * 1.1)
+        canvas_scale_y = canvas_height / (curr_object.trait['edge_helio'].value * 1.1)
         create_oval_by_center(viewCanvas, canvas_width / 2, canvas_height / 2,
                               float(curr_object.trait['star_diameter'].value * 5 + 5), color="yellow")
         for so in curr_object.subobject:
-            create_object_with_orbit(viewCanvas, so, canvas_width, canvas_height, canvas_scaleX, canvas_scaleY)
-
-
+            create_object_with_orbit(viewCanvas, so, canvas_width, canvas_height, canvas_scale_x, canvas_scale_y)
 
     elif curr_object.object_type == "Planet":
         print("Creating Planet UI")
     else:
         print("Creating Other UI")
 
-    journalFrame = Frame(rightFrame, bg="white", width=0.68 * screenX, height=0.2 * screenY)
-    buttonFrame = Frame(rightFrame, bg="red", width=0.68 * screenX, height=0.1 * screenY)
+    journal_frame = Frame(right_frame, bg="white", width=0.68 * screenX, height=0.2 * screenY)
+    button_frame = Frame(right_frame, bg="red", width=0.68 * screenX, height=0.1 * screenY)
 
-    journalFrame.grid(row=1, column=0, padx=0, pady=0, sticky="NESW")
-    buttonFrame.grid(row=2, column=0, padx=0, pady=0, sticky="NESW")
+    journal_frame.grid(row=1, column=0, padx=0, pady=0, sticky="NESW")
+    button_frame.grid(row=2, column=0, padx=0, pady=0, sticky="NESW")
 
     root.mainloop()
 
@@ -1168,10 +1156,10 @@ def create_object_with_orbit(canvas, planet, canvasX, canvasY, canvas_scaleX, ca
     x2, y2 = canvasX / 2 + orbit * canvas_scaleX, canvasY / 2 + orbit * canvas_scaleY
     canvas.create_oval(x1, y1, x2, y2, outline="white")
 
-    objectX = math.cos(planet.trait['orbit_radians'].value) * orbit
-    objectY = math.sin(planet.trait['orbit_radians'].value) * orbit
-    x1, y1 = canvasX / 2 - objectX * canvas_scaleX - size / 2, canvasY / 2 - objectY * canvas_scaleY - size / 2
-    x2, y2 = canvasX / 2 - objectX * canvas_scaleX + size / 2, canvasY / 2 - objectY * canvas_scaleY + size / 2
+    object_x = math.cos(planet.trait['orbit_radians'].value) * orbit
+    object_y = math.sin(planet.trait['orbit_radians'].value) * orbit
+    x1, y1 = canvasX / 2 - object_x * canvas_scaleX - size / 2, canvasY / 2 - object_y * canvas_scaleY - size / 2
+    x2, y2 = canvasX / 2 - object_x * canvas_scaleX + size / 2, canvasY / 2 - object_y * canvas_scaleY + size / 2
     canvas.create_oval(x1, y1, x2, y2, fill=planet.trait['color'].value)
     canvas.create_text(x2, y2, anchor="nw", fill="white", text=planet.trait['identity'].value)
 
@@ -1240,7 +1228,7 @@ new_galaxy_button.pack()
 random_board_button = Button(main_menu, text="Random Board", command=random_board_button)
 random_board_button.pack()
 
-############## IMAGES FOR UI##################
+# IMAGES FOR UI##################
 image_d6 = PhotoImage(file=r"d6-15x15.png")
 image_reroll = PhotoImage(file=r"reroll.png")
 image_lookup = PhotoImage(file=r"lookup.png")
